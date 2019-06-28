@@ -125,4 +125,4 @@ STATICFILES_DIRS = [
 ]
 
 # specify storage option for whitenoise module (for static files)
-STATICFILES_STORAGE = 'arch.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'dp.storage.CompressedManifestStaticFilesStorage'
