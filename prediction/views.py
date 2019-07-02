@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,10 +11,12 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix
+import joblib
 import itertools
 import requests, json
 # Create your views here.
 
+ML_MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'ml_models')
 
 def Chilli_all_other():
   Rh3 = np.arange(25,50,0.1)
@@ -25,8 +28,8 @@ def Chilli_all_other():
   T5 = np.arange(22,25,0.1)
   T6 = np.arange(25,32,0.1)
 
-  dict = { 0:'Damping Off', 1:'Fruit Rot and Die Back', 2:'Powdery Mildew', 3:'Bacterial Leaf Spot', 4:'Cercospora Leaf Spot', 5:'Fusarium Wilt'}
-  Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
+  # dict = { 0:'Damping Off', 1:'Fruit Rot and Die Back', 2:'Powdery Mildew', 3:'Bacterial Leaf Spot', 4:'Cercospora Leaf Spot', 5:'Fusarium Wilt'}
+  # Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
 
   df3 = pd.DataFrame(data=(list(itertools.product(Rh3,T3,[2]))),columns=['Rh', 'T',  'Disease'])
   df4 = pd.DataFrame(data=(list(itertools.product(Rh4,T4,[3]))),columns=['Rh', 'T',  'Disease'])
@@ -41,16 +44,11 @@ def Chilli_all_other():
   x = df.loc[:,features].values
   y = df.loc[:,['Disease']].values
 
-  l1 = [ 'Powdery Mildew', 'Bacterial Leaf Spot', 'Cercospora Leaf Spot', 'Fusarium Wilt' ]
-  colors = 'krby'
-  l = [2,3,4,5]
-  for i, color in zip(l, colors):
-      idx = np.where(y == i)
-
   x_tr, x_te, y_tr, y_te = train_test_split(x,y,test_size=0.1)
   x_de, x_te, y_de, y_te = train_test_split(x_te,y_te, test_size=0.5)
 
   clf1 = SVC(probability=True).fit(x_tr,y_tr)
+  joblib.dump(clf1, os.path.join(ML_MODEL_DIR,'Chilli_all_other.sav'))
   return clf1
 
 
@@ -66,8 +64,8 @@ def Chilli_Flowering():
     T5 = np.arange(22,25,0.1)
     T6 = np.arange(25,32,0.1)
 
-    dict = { 0:'Damping Off', 1:'Fruit Rot and Die Back', 2:'Powdery Mildew', 3:'Bacterial Leaf Spot', 4:'Cercospora Leaf Spot', 5:'Fusarium Wilt'}
-    Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
+    # dict = { 0:'Damping Off', 1:'Fruit Rot and Die Back', 2:'Powdery Mildew', 3:'Bacterial Leaf Spot', 4:'Cercospora Leaf Spot', 5:'Fusarium Wilt'}
+    # Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
 
     df2 = pd.DataFrame(data=(list(itertools.product(Rh2,T2,[1]))),columns=['Rh', 'T', 'Disease'])
     df3 = pd.DataFrame(data=(list(itertools.product(Rh3,T3,[2]))),columns=['Rh', 'T',  'Disease'])
@@ -83,20 +81,16 @@ def Chilli_Flowering():
     x = df.loc[:,features].values
     y = df.loc[:,['Disease']].values
 
-    l1 = ['Fruit Rot',  'Powdery Mildew', 'Bacterial Leaf Spot', 'Cercospora Leaf Spot', 'Fusarium Wilt' ]
-    colors = 'krbyc'
-    l = [1,2,3,4,5]
-    for i, color in zip(l, colors):
-        idx = np.where(y == i)
-
     x_tr, x_te, y_tr, y_te = train_test_split(x,y,test_size=0.1)
     x_de, x_te, y_de, y_te = train_test_split(x_te,y_te, test_size=0.5)
 
     clf1 = SVC(probability=True).fit(x_tr,y_tr)
+
+    joblib.dump(clf1, os.path.join(ML_MODEL_DIR,'Chilli_Flowering.sav'))
     return clf1
 
-def Chilli_Seedling():
 
+def Chilli_Seedling():
     Rh1 = np.arange(90,100,0.1)
     Rh3 = np.arange(25,50,0.1)
     Rh4 = np.arange(70,100,0.1)
@@ -108,8 +102,8 @@ def Chilli_Seedling():
     T5 = np.arange(22,25,0.1)
     T6 = np.arange(25,32,0.1)
 
-    dict = { 0:'Damping Off', 1:'Fruit Rot and Die Back', 2:'Powdery Mildew', 3:'Bacterial Leaf Spot', 4:'Cercospora Leaf Spot', 5:'Fusarium Wilt'}
-    Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
+    # dict = { 0:'Damping Off', 1:'Fruit Rot and Die Back', 2:'Powdery Mildew', 3:'Bacterial Leaf Spot', 4:'Cercospora Leaf Spot', 5:'Fusarium Wilt'}
+    # Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
 
     df1 = pd.DataFrame(data=(list(itertools.product(Rh1,T1,[0]))),columns=['Rh', 'T', 'Disease'])
     df3 = pd.DataFrame(data=(list(itertools.product(Rh3,T3,[2]))),columns=['Rh', 'T',  'Disease'])
@@ -125,29 +119,23 @@ def Chilli_Seedling():
     x = df.loc[:,features].values
     y = df.loc[:,['Disease']].values
 
-    l1 = ['Damping Off',  'Powdery Mildew', 'Bacterial Leaf Spot', 'Cercospora Leaf Spot', 'Fusarium Wilt' ]
-    colors = 'krbyc'
-    l = [0,2,3,4,5]
-    for i, color in zip(l, colors):
-        idx = np.where(y == i)
-
     x_tr, x_te, y_tr, y_te = train_test_split(x,y,test_size=0.1)
     x_de, x_te, y_de, y_te = train_test_split(x_te,y_te, test_size=0.5)
 
     clf1 = SVC(probability=True).fit(x_tr,y_tr)
 
+    joblib.dump(clf1, os.path.join(ML_MODEL_DIR,'Chilli_Seedling.sav'))
     return clf1
 
 
 def Tomato_Seedling():
-
     Rh1 = np.arange(85,100,0.1)
     Rh4 = np.arange(70,100,0.1)
     T1 = np.arange(18,25,0.1)
     T4 = np.arange(25,30,0.1)
 
-    dict = { 0:'Damping Off', 1:'Septorial Leaf Spot', 2:'Bacterial Stem and Fruit Canker', 3:'Early Blight', 4:'Bacterial Leaf Spot'}
-    Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
+    # dict = { 0:'Damping Off', 1:'Septorial Leaf Spot', 2:'Bacterial Stem and Fruit Canker', 3:'Early Blight', 4:'Bacterial Leaf Spot'}
+    # Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
 
     df1 = pd.DataFrame(data=(list(itertools.product(Rh1,T1,[0]))),columns=['Rh', 'T',  'Disease'])
     df4 = pd.DataFrame(data=(list(itertools.product(Rh4,T4,[3]))),columns=['Rh', 'T', 'Disease'])
@@ -160,22 +148,15 @@ def Tomato_Seedling():
     x = df.loc[:,features].values
     y = df.loc[:,['Disease']].values
 
-    l1 = [ 'Damping Off','Early Blight']
-    colors = 'rb'
-    l = [0,3]
-    for i, color in zip(l, colors):
-        idx = np.where(y == i)
-
     x_tr, x_te, y_tr, y_te = train_test_split(x,y,test_size=0.1)
     x_de, x_te, y_de, y_te = train_test_split(x_te,y_te, test_size=0.5)
 
     clf1 = SVC(probability=True).fit(x_tr,y_tr)
 
+    joblib.dump(clf1, os.path.join(ML_MODEL_DIR,'Tomato_Seedling.sav'))
     return clf1
 
-
 def Tomato_all_others():
-
     Rh2 = np.arange(75,100,0.1)
     Rh3 = np.arange(75,100,0.1)
     Rh4 = np.arange(70,100,0.1)
@@ -185,8 +166,8 @@ def Tomato_all_others():
     T4 = np.arange(25,30,0.1)
     T5 = np.arange(15,21,0.1)
 
-    dict = { 0:'Damping Off', 1:'Septorial Leaf Spot', 2:'Bacterial Stem and Fruit Canker', 3:'Early Blight', 4:'Bacterial Leaf Spot'}
-    Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
+    # dict = { 0:'Damping Off', 1:'Septorial Leaf Spot', 2:'Bacterial Stem and Fruit Canker', 3:'Early Blight', 4:'Bacterial Leaf Spot'}
+    # Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
 
     df2 = pd.DataFrame(data=(list(itertools.product(Rh2,T2,[1]))),columns=['Rh', 'T',  'Disease'])
     df3 = pd.DataFrame(data=(list(itertools.product(Rh3,T3,[2]))),columns=['Rh', 'T',  'Disease'])
@@ -201,26 +182,34 @@ def Tomato_all_others():
     x = df.loc[:,features].values
     y = df.loc[:,['Disease']].values
 
-    l1 = [ 'Septorial Leaf Spot', 'Bacterial Stem and Fruit Canker', 'Early Blight', 'Bacterial Leaf Spot' ]
-    colors = 'krby'
-    l = [1,2,3,4]
-    for i, color in zip(l, colors):
-        idx = np.where(y == i)
-
-
     x_tr, x_te, y_tr, y_te = train_test_split(x,y,test_size=0.1)
     x_de, x_te, y_de, y_te = train_test_split(x_te,y_te, test_size=0.5)
 
     clf1 = SVC(kernel='poly', probability=True).fit(x_tr,y_tr)
 
+    joblib.dump(clf1, os.path.join(ML_MODEL_DIR,'Tomato_all_others.sav'))
     return clf1
 
-
-chilli_all_other = Chilli_all_other()
-chilli_flowering = Chilli_Flowering()
-chilli_seedling = Chilli_Seedling()
-tomato_seedling = Tomato_Seedling()
-tomato_all_other = Tomato_all_others()
+try:
+    chilli_all_other = joblib.load(os.path.join(ML_MODEL_DIR,'Chilli_all_other.sav'))
+except:
+    chilli_all_other = Chilli_all_other()
+try:
+    chilli_flowering = joblib.load(os.path.join(ML_MODEL_DIR,'Chilli_Flowering.sav'))
+except:
+    chilli_flowering = Chilli_Flowering()
+try:
+    chilli_seedling = joblib.load(os.path.join(ML_MODEL_DIR, 'Chilli_Seedling.sav'))
+except:
+    chilli_seedling = Chilli_Seedling()
+try:
+    tomato_seedling = joblib.load(os.path.join(ML_MODEL_DIR, 'Tomato_Seedling.sav'))
+except:
+    tomato_seedling = Tomato_Seedling()
+try:
+    tomato_all_other = joblib.load(os.path.join(ML_MODEL_DIR, 'Tomato_all_others.sav'))
+except:
+    tomato_all_other = Tomato_all_others()
 
 def predict(Crop, Stage, l):
     temp = []
