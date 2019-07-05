@@ -190,6 +190,7 @@ def Tomato_all_others():
     joblib.dump(clf1, os.path.join(ML_MODEL_DIR,'Tomato_all_others.sav'))
     return clf1
 
+
 try:
     chilli_all_other = joblib.load(os.path.join(ML_MODEL_DIR,'Chilli_all_other.sav'))
 except:
@@ -216,6 +217,7 @@ def predict(Crop, Stage, l):
     temp1=[]
     i=0
     if(Crop=='Chilli'):
+        map = ['Damping Off', 'Fruit Rot and Die Back', 'Powdery Mildew', 'Bacterial Leaf Spot', 'Cercospora Leaf Spot', 'Fusarium Wilt']
         if(Stage=='Seedling'):
             for var in l:
                 temp.append(chilli_seedling.predict_proba(np.asarray(var).reshape(1,-1)))
@@ -242,6 +244,7 @@ def predict(Crop, Stage, l):
               temp1.insert(i,var)
               i=i+1
     elif(Crop=='Tomato'):
+        map = [ 'Damping Off', 'Septorial Leaf Spot', 'Bacterial Stem and Fruit Canker', 'Early Blight', 'Bacterial Leaf Spot']
         if(Stage=='Seedling'):
             for var in l:
                 temp.append(tomato_seedling.predict_proba(np.asarray(var).reshape(1,-1)))
@@ -258,7 +261,7 @@ def predict(Crop, Stage, l):
               var=[0]+var
               temp1.insert(i,var)
               i=i+1
-    return temp1
+    return temp1, map
 
 def index(request):
     js = {}
@@ -272,7 +275,6 @@ def index(request):
         js_data = response.json()
         js_data = js_data.get('hourlyForecasts').get('forecastLocation').get('forecast')
         i=0
-
         Tavg=[]
         Uavg=[]
         RHavg=[]
@@ -289,7 +291,7 @@ def index(request):
             Uavg=Uavg+[round(sum(u)/24,1)]
             i=i+24
         z = list(zip(RHavg, Tavg))
-        js['prob'] = predict(crop, stage, z)
+        js['prob'], js['map'] = predict(crop, stage, z)
         js['status'] = True
     except Exception as e:
         js['status'] = False
