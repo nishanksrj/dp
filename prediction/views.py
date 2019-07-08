@@ -190,6 +190,50 @@ def Tomato_all_others():
     joblib.dump(clf1, os.path.join(ML_MODEL_DIR,'Tomato_all_others.sav'))
     return clf1
 
+def Cotton_all_others():
+    Rh1 = np.arange(80,100,0.1)
+    Rh4 = np.arange(80,100,0.1)
+    Rh6 = np.arange(85,100,0.1)
+    T1 = np.arange(28,32,0.1)
+    T4 = np.arange(20,30,0.1)
+    T6 = np.arange(30,40,0.1)
+
+    dict = { 0:'Fusarium Wilt', 1:'Root Rot', 2:'Anthracnose', 3:'Grey Mildew', 4:'Alternia Leaf Spot', 5:'Bacterial Blight'}
+    Stage = ['Branching', 'Flowering', 'Fruiting','Seedling', 'Stem Elongation']
+
+    df1 = pd.DataFrame(data=(list(itertools.product(Rh1,T1,[0]))),columns=['Rh', 'T', 'Disease'])
+    df4 = pd.DataFrame(data=(list(itertools.product(Rh4,T4,[3]))),columns=['Rh', 'T',  'Disease'])
+    df6 = pd.DataFrame(data=(list(itertools.product(Rh6,T6,[5]))),columns=['Rh', 'T',  'Disease'])
+    df = df1.append(df4.append(df6, ignore_index=True),ignore_index=True)
+
+
+    features = ['Rh','T']
+    df = df.sample(frac=1).reset_index(drop = True)
+
+    x = df.loc[:,features].values
+    y = df.loc[:,['Disease']].values
+
+    l1 = ['Fusarium Wilt', 'Grey Mildew', 'Bacterial Blight' ]
+    colors = 'krbyc'
+    l = [0,3,5]
+    for i, color in zip(l, colors):
+        idx = np.where(y == i)
+        plt.scatter(x[idx, 0], x[idx, 1], c=color, edgecolor='black', cmap=plt.cm.Paired, s=20)
+
+
+    plt.xlabel('Rh')
+    plt.ylabel('T')
+    plt.title('Variation of Diseases with Temperature and Relative Humidity')
+    plt.legend(l1)
+
+
+    x_tr, x_te, y_tr, y_te = train_test_split(x,y,test_size=0.1)
+    x_de, x_te, y_de, y_te = train_test_split(x_te,y_te, test_size=0.5)
+
+    clf1 = SVC(probability=True).fit(x_tr,y_tr)
+    joblib.dump(clf1, os.path.join(ML_MODEL_DIR,'Cotton_all_others.sav'))
+    return clf1
+
 
 try:
     chilli_all_other = joblib.load(os.path.join(ML_MODEL_DIR,'Chilli_all_other.sav'))
@@ -211,12 +255,17 @@ try:
     tomato_all_other = joblib.load(os.path.join(ML_MODEL_DIR, 'Tomato_all_others.sav'))
 except:
     tomato_all_other = Tomato_all_others()
+try:
+    cotton_all_other = joblib.load(os.path.join(ML_MODEL_DIR, 'Cotton_all_others.sav'))
+except:
+    cotton_all_other = Cotton_all_others()
+
 
 def predict(Crop, Stage, l):
     temp = []
     temp1=[]
     i=0
-    if(Crop=='Chilli'):
+    if(Crop=='Hot Pepper (Chilli)'):
         map = ['Damping Off', 'Fruit Rot and Die Back', 'Powdery Mildew', 'Bacterial Leaf Spot', 'Cercospora Leaf Spot', 'Fusarium Wilt']
         if(Stage=='Seedling'):
             for var in l:
@@ -261,6 +310,15 @@ def predict(Crop, Stage, l):
               var=[0]+var
               temp1.insert(i,var)
               i=i+1
+    elif(Crop=='Cotton'):
+        map = ['Fusarium Wilt', 'Root Rot', 'Anthracnose', 'Grey Mildew', 'Alternia Leaf Spot', 'Bacterial Blight']
+        for var in l:
+            temp.insert(i,cotton_all_other.predict_proba(np.asarray(var).reshape(1,-1)))
+        for var in temp:
+          var=var[0].tolist()
+          var=[var[0]]+[0,0]+[var[1]]+[0]+[var[2]]
+          temp1.insert(i,var)
+          i=i+1
     return temp1, map
 
 def index(request):
