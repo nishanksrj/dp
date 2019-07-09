@@ -369,5 +369,5 @@ def esp(request):
     else:
         response['status'] = False
     f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'soil.txt'), 'r')
-    response['text'] = f.read()
+    response['text'] = f.read().split('\n')
     return HttpResponse(json.dumps(response), content_type="application/json")
