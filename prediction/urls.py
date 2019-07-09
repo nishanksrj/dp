@@ -4,5 +4,6 @@ from .views import *
 
 
 urlpatterns = [
-    path('index', index,name="index"),
+    path('', index,name="index"),
+    path('esp/', esp, name="esp")
 ]

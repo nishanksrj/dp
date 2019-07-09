@@ -355,3 +355,19 @@ def index(request):
         js['status'] = False
         js['error'] = str(e)
     return HttpResponse(json.dumps(js),content_type="application/json")
+
+
+def esp(request):
+    response = {}
+    data = request.GET.get("data")
+    if data:
+        f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'soil.txt'), 'a+')
+        f.write(data + '\n')
+        f.close()
+        response['status'] = True
+        response['message'] = "Data submitted successfully."
+    else:
+        response['status'] = False
+    f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'soil.txt'), 'r')
+    response['text'] = f.read()
+    return HttpResponse(json.dumps(response), content_type="application/json")
