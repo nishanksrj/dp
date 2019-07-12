@@ -446,8 +446,8 @@ def esp(request):
     f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'soil.txt'), 'r')
     data = f.read().split('\n')
     data.reverse()
-    if len(data)>=5:
-        response['data'] = data[:5]
+    if len(data)>=6:
+        response['data'] = data[1:6]
     else:
         response['data'] = data
     return HttpResponse(json.dumps(response), content_type="application/json")
