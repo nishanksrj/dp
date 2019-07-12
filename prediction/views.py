@@ -446,7 +446,7 @@ def esp(request):
     data = f.read().split('\n')
     data.reverse()
     if len(data)>=5:
-        context['data'] = data[:5]
+        response['data'] = data[:5]
     else:
-        context['data'] = data
+        response['data'] = data
     return HttpResponse(json.dumps(response), content_type="application/json")
