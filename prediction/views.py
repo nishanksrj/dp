@@ -436,12 +436,17 @@ def esp(request):
     data = request.GET.get("data")
     if data:
         f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'soil.txt'), 'a+')
-        f.write(data + '\n')
+        f.write(str(datetime.datetime.now().strftime('%H:%M%S, %d-%m-%Y')) + ": " + data + '\n')
         f.close()
         response['status'] = True
         response['message'] = "Data submitted successfully."
     else:
         response['status'] = False
     f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'soil.txt'), 'r')
-    response['text'] = f.read().split('\n')
+    data = f.read().split('\n')
+    data.reverse()
+    if len(data)>=5:
+        context['data'] = data[:5]
+    else:
+        context['data'] = data
     return HttpResponse(json.dumps(response), content_type="application/json")
