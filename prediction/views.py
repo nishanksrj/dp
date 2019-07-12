@@ -437,7 +437,7 @@ def esp(request):
     data = request.GET.get("data")
     if data:
         f = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'soil.txt'), 'a+')
-        f.write(str(datetime.datetime.now().strftime('%H:%M%S, %d-%m-%Y')) + ": " + data + '\n')
+        f.write(str(datetime.datetime.utcnow().strftime('%H:%M:%S, %d-%m-%Y')) + ": " + data + '\n')
         f.close()
         response['status'] = True
         response['message'] = "Data submitted successfully."
