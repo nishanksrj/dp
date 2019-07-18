@@ -4,5 +4,6 @@ from .views import *
 
 
 urlpatterns = [
-    path('esp/', esp, name="esp")
+    path('esp/', esp, name="esp"),
+    path('soilsens/', soilsens, name="soilsens")
 ]

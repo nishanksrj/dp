@@ -431,3 +431,18 @@ def esp(request):
     else:
         response['data'] = data
     return HttpResponse(json.dumps(response), content_type="application/json")
+
+def soilsens(request):
+    import requests
+    id = request.GET.get("id")
+    context = {}
+    if id:
+        url = "https://api.soilsens.com/api/currentData"
+        payload = "{ 'fromDate': " + datetime.datetime.now().strftime('%Y-%m-%d') + ", 'fields': [" + str(id) + "] }"
+        headers = { 'Content-Type': "application/json", 'Token': "WzZLhxBYDYRke9R6EcmlATTMKZHYLxfK" }
+        response = requests.request("POST", url, data=payload, headers=headers)
+        context = response.json()[0]["sensor_data"]
+    else:
+        context['status'] = False
+        context['message'] = "Parameter id not specified"
+    return HttpResponse(json.dumps(context), content_type="application/json")
