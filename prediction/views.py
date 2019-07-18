@@ -438,10 +438,13 @@ def soilsens(request):
     context = {}
     if id:
         url = "https://api.soilsens.com/api/currentData"
-        payload = "{ 'fromDate': " + datetime.datetime.now().strftime('%Y-%m-%d') + ", 'fields': [" + str(id) + "] }"
+        payload = '{ "fields": [' + str(id) + '] }'
         headers = { 'Content-Type': "application/json", 'Token': "WzZLhxBYDYRke9R6EcmlATTMKZHYLxfK" }
         response = requests.request("POST", url, data=payload, headers=headers)
-        context = response.json()[0]["sensor_data"]
+        try:
+            context = response.json()[0]["sensor_data"]
+        except:
+            context = response.json()
     else:
         context['status'] = False
         context['message'] = "Parameter id not specified"
